@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  phone     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  groupsCreated Group[]       @relation("GroupCreator")
+  memberships   GroupMember[]
+  workouts      Workout[]
+  penalties     Penalty[]
+  points        Points[]
+}
+
+model Group {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  inviteCode         String   @unique
+  createdById        Int
+  challengeFrequency String   @default("daily")
+  deadlineHour       Int      @default(22)
+  timezone           String   @default("UTC")
+  penaltyPoints      Int      @default(10)
+  createdAt          DateTime @default(now())
+
+  createdBy    User          @relation("GroupCreator", fields: [createdById], references: [id])
+  members      GroupMember[]
+  workouts     Workout[]
+  penalties    Penalty[]
+  points       Points[]
+  periodCloses PeriodClose[]
+}
+
+model GroupMember {
+  groupId  Int
+  userId   Int
+  joinedAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@id([groupId, userId])
+}
+
+model Workout {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  groupId         Int?
+  activityType    String
+  photoUrl        String?
+  note            String?
+  loggedAt        DateTime @default(now())
+  challengePeriod DateTime @db.Date
+
+  user  User   @relation(fields: [userId], references: [id])
+  group Group? @relation(fields: [groupId], references: [id])
+}
+
+model Penalty {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  groupId         Int
+  challengePeriod DateTime @db.Date
+  points          Int
+  reason          String?
+  createdAt       DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId, challengePeriod])
+}
+
+model Points {
+  userId  Int
+  groupId Int
+  total   Int @default(100)
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@id([userId, groupId])
+}
+
+// Tracks that the deadline job has run for a given group+period — prevents double-processing
+model PeriodClose {
+  groupId         Int
+  challengePeriod DateTime @db.Date
+  closedAt        DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@id([groupId, challengePeriod])
+}
