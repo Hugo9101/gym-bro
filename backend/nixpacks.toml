@@ -6,9 +6,7 @@ cmds = ["npm install"]
 
 [phases.build]
 cmds = ["npx prisma generate", "npm run build"]
-
-[phases.build.env]
-DATABASE_URL = "postgresql://placeholder:placeholder@placeholder/placeholder"
+envs = ["DATABASE_URL=postgresql://placeholder:placeholder@placeholder/placeholder"]
 
 [start]
 cmd = "npm start"
