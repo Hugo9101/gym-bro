@@ -1,5 +1,5 @@
 import prisma from '../db/prisma';
-import { sendMessage } from '../services/telegram';
+import { sendMessage, mainMenuKeyboard } from '../services/telegram';
 
 export const onboardingState = new Map<string, 'awaiting_name'>();
 
@@ -21,7 +21,8 @@ export async function handleRegistration(from: string, body: string): Promise<vo
     onboardingState.delete(from);
     await sendMessage(
       from,
-      `Got it, ${name}! You're all set 💪\n\nTo join a group, ask your squad for their invite code and reply /join [code]\nTo log a solo workout, send /log [activity] or send a photo.`,
+      `Got it, ${name}! You're all set 💪\n\nTap a button below to get started.`,
+      mainMenuKeyboard(),
     );
     return;
   }

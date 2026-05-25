@@ -2,7 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import { bot } from './services/telegram';
 import { startDeadlineCron } from './jobs/deadlineCheck';
-import { route } from './router';
+import { route, routeCallback } from './router';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -28,6 +28,19 @@ bot.on('text', async (ctx) => {
     await route(from, body);
   } catch (err) {
     console.error('[telegram] error:', err);
+  }
+});
+
+// Inline keyboard button presses
+bot.on('callback_query', async (ctx) => {
+  if (!('data' in ctx.callbackQuery)) return;
+  const from = ctx.from.id.toString();
+  const data = ctx.callbackQuery.data;
+  try {
+    await ctx.answerCbQuery();
+    await routeCallback(from, data);
+  } catch (err) {
+    console.error('[telegram] callback error:', err);
   }
 });
 

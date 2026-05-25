@@ -1,7 +1,8 @@
 import prisma from '../db/prisma';
 import { sendMessage } from '../services/telegram';
 import { uploadFromUrl } from '../services/media';
-import { parseActivity, ACTIVITY_PICKER } from '../utils/activityParser';
+import { parseActivity } from '../utils/activityParser';
+import { showActivityPicker } from './menu';
 import { getCurrentPeriod } from '../utils/challengePeriod';
 import { getStreak } from '../services/points';
 import { cap } from '../utils/formatters';
@@ -37,7 +38,7 @@ export async function handleLog(from: string, body: string, mediaUrl?: string): 
     }
     if (!activityRaw) {
       pendingPhoto.set(from, photoUrl ?? '');
-      await sendMessage(from, ACTIVITY_PICKER);
+      await showActivityPicker(from);
       return;
     }
   } else if (pendingPhoto.has(from)) {
@@ -47,7 +48,7 @@ export async function handleLog(from: string, body: string, mediaUrl?: string): 
   }
 
   if (!activityRaw) {
-    await sendMessage(from, `What activity? e.g. /log gym\n\n${ACTIVITY_PICKER}`);
+    await showActivityPicker(from);
     return;
   }
 
