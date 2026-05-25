@@ -57,7 +57,20 @@ bot.on('photo', async (ctx) => {
   }
 });
 
-bot.launch();
+bot.launch().then(() => {
+  bot.telegram.setMyCommands([
+    { command: 'start',       description: 'Register or welcome back' },
+    { command: 'log',         description: 'Log a workout' },
+    { command: 'stats',       description: 'Your stats & points' },
+    { command: 'streak',      description: 'Current streak' },
+    { command: 'history',     description: 'Last 7 workouts' },
+    { command: 'create',      description: 'Create a group' },
+    { command: 'join',        description: 'Join a group' },
+    { command: 'leaderboard', description: 'Current standings' },
+    { command: 'rules',       description: 'Group settings' },
+    { command: 'help',        description: 'All commands' },
+  ]).catch((err) => console.error('[telegram] setMyCommands failed:', err));
+});
 console.log('[telegram] bot started (polling)');
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
