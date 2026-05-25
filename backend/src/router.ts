@@ -1,7 +1,7 @@
 import prisma from './db/prisma';
 import { handleRegistration, handleRename, onboardingState } from './handlers/register';
 import { handleLog, pendingPhoto } from './handlers/logWorkout';
-import { handleCreate, handleJoin, handleLeaderboard, handleRules, handleSettings } from './handlers/group';
+import { handleCreate, handleJoin, handleLeaderboard, handleRules, handleSettings, handleMyGroup } from './handlers/group';
 import { handleStats, handleStreak, handleHistory } from './handlers/stats';
 import { handleHelp } from './handlers/help';
 import { showActivityPicker, showGroupMenu, showSettingsMenu } from './handlers/menu';
@@ -147,6 +147,9 @@ export async function routeCallback(from: string, data: string): Promise<void> {
 
     case 'group':
       switch (param) {
+        case 'mygroup':
+          await handleMyGroup(from);
+          break;
         case 'create':
           pendingInput.set(from, 'create_name');
           await sendMessage(from, '➕ *Create a group*\n\nWhat do you want to call it?');

@@ -63,6 +63,42 @@ export async function handleJoin(from: string, args: string): Promise<void> {
   await sendMessage(from, `🎉 You joined "${group.name}"!\n${count} member${count !== 1 ? 's' : ''} in the group.\n\nDeadline: ${group.deadlineHour}:00 daily | Penalty: ${group.penaltyPoints} pts`);
 }
 
+export async function handleMyGroup(from: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { phone: from } });
+  if (!user) { await sendMessage(from, 'Register first.'); return; }
+
+  const membership = await activeGroup(user.id);
+  if (!membership) {
+    await sendMessage(from, "You're not in any group yet.\n\nUse the Group menu to create or join one.");
+    return;
+  }
+
+  const g = membership.group;
+
+  const [members, pts] = await Promise.all([
+    prisma.groupMember.findMany({ where: { groupId: g.id }, include: { user: true }, orderBy: { joinedAt: 'asc' } }),
+    prisma.points.findMany({ where: { groupId: g.id }, include: { user: true } }),
+  ]);
+
+  const pointsMap = new Map(pts.map((p) => [p.userId, p.total]));
+  const memberLines = members
+    .map((m) => {
+      const score = pointsMap.get(m.userId) ?? 100;
+      const tag = m.userId === g.createdById ? ' 👑' : '';
+      return `• ${m.user.name}${tag} — ${score} pts`;
+    })
+    .join('\n');
+
+  const msg =
+    `👥 *${g.name}*\n\n` +
+    `${memberLines}\n\n` +
+    `🔑 Invite code: \`${g.inviteCode}\`\n` +
+    `🕐 Deadline: ${g.deadlineHour}:00 (${g.timezone})\n` +
+    `💀 Penalty: ${g.penaltyPoints} pts per miss`;
+
+  await sendMessage(from, msg);
+}
+
 export async function handleLeaderboard(from: string): Promise<void> {
   const user = await prisma.user.findUnique({ where: { phone: from } });
   if (!user) { await sendMessage(from, 'Register first.'); return; }

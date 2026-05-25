@@ -22,6 +22,7 @@ export async function showGroupMenu(from: string): Promise<void> {
     from,
     '👥 *Group*\n\nWhat would you like to do?',
     Markup.inlineKeyboard([
+      [Markup.button.callback('👥 My Group', 'group:mygroup')],
       [Markup.button.callback('➕ Create Group', 'group:create'), Markup.button.callback('🔗 Join Group', 'group:join')],
       [Markup.button.callback('📋 Rules', 'group:rules'),         Markup.button.callback('⚙️ Settings', 'group:settings')],
     ]),
