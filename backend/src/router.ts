@@ -64,7 +64,7 @@ export async function route(from: string, body: string, mediaUrl?: string): Prom
   }
 
   if (!body.startsWith('/')) {
-    await sendMessage(from, 'Tap a button below or send /help 👇');
+    await sendMessage(from, 'Tap a button below or send /help 👇', mainMenuKeyboard());
     return;
   }
 

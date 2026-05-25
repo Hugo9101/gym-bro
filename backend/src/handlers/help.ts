@@ -1,4 +1,4 @@
-import { sendMessage } from '../services/telegram';
+import { sendMessage, mainMenuKeyboard } from '../services/telegram';
 
 const HELP = `Gym Bro commands 💪
 
@@ -24,5 +24,5 @@ Send a *photo* to log a workout — caption is optional.
 Activities: gym | running | cycling | swimming | squash | tennis | padel | basketball | football | yoga | hiking | climbing | other`;
 
 export async function handleHelp(from: string): Promise<void> {
-  await sendMessage(from, HELP);
+  await sendMessage(from, HELP, mainMenuKeyboard());
 }
